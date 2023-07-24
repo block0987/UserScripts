@@ -16,7 +16,7 @@
         "FabricMDL2Icons-3", "FabricMDL2Icons-4", "FabricMDL2Icons-5", "FabricMDL2Icons-8",
         "FontAwesome", "Font Awesome 5 Brands", "Font Awesome 5 Free", "Font Awesome 5 Pro", "Font Awesome 6 Free",
         "FontAwesomeBrands", "FontAwesomeExtra", "FontAwesomeSolid", "FluentSystemIcons", "FluentSystemIconsFilled",
-        "FluentSystemIconsRegular", "Google Symbols", "Glyphicons Halflings", "MWF-MDL2", "Material Design Iconic Font",
+        "FluentSystemIconsRegular", "'Google Symbols'", "Glyphicons Halflings", "MWF-MDL2", "Material Design Iconic Font",
         "Material Icons", "ShellFabricMDL2Icons", "VideoJS", "bitly icon", "controlIcons", "dashicons", "docons",
         "eg-footer-icomoon", "icomoon", "mathworks", "office365icons", "stsvg", "trellicons", "wundercon", "fa-brands",
         "fa-regular", "fa-solid", "material-design-icons", "mdi", "simple-line-icons", "typicons", "feather",
@@ -29,7 +29,7 @@
         const computedStyle = window.getComputedStyle(element);
         const font = computedStyle.fontFamily;
 
-        if (!font) return;
+        if (!font || excludeFontsSet.has(font)) return; // excludeFontsに含まれるフォントは置換しない
 
         const fontWeight = parseInt(computedStyle.fontWeight, 10);
         const newFont = fontWeight <= 600 ? targetFonts[0] : targetFonts[1];
@@ -50,12 +50,20 @@
             const computedStyle = window.getComputedStyle(node);
             const font = computedStyle.fontFamily;
 
-            if (font && !targetFontsSet.has(font) && !excludeFontsSet.has(font)) {
+            if (font && !targetFontsSet.has(font) && !checkParentFonts(node)) {
                 replaceFont(node);
             }
 
             node = walker.nextNode();
         }
+    }
+
+    // 親要素にexcludeFontsに含まれるフォントがあるか再帰的にチェックする
+    function checkParentFonts(element) {
+        if (!element || !element.parentNode) return false;
+        const computedStyle = window.getComputedStyle(element.parentNode);
+        const font = computedStyle.fontFamily;
+        return font && excludeFontsSet.has(font) ? true : checkParentFonts(element.parentNode);
     }
 
     processElements();
