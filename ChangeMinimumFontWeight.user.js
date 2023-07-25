@@ -8,9 +8,9 @@
 // ==/UserScript==
 
 (function () {
-    const textStyle = "font-weight: 400;";
-    const newFontFamily = "font-family: var(--font-b), var(--icon-font) !important;";
-    const requiredFonts = ['Inter', 'LINE Seed JP_OTF', 'Hiragino Kaku Gothic ProN'];
+    const MIN_FONT_WEIGHT = 400;
+    const NEW_FONT_FAMILY = "font-family: var(--font-b), var(--icon-font) !important;";
+    const REQUIRED_FONTS = ['Inter', 'LINE Seed JP_OTF', 'Hiragino Kaku Gothic ProN'];
     let foundFonts = [];
     let animationFrameId = null;
 
@@ -25,19 +25,19 @@
             const isNotEmpty = !node.textContent.trim().length;
             const fontFamily = style.fontFamily;
 
-            if (!isNotEmpty && fontWeight < 400 && style.fontWeight !== "400") {
-                parentElement.style.fontWeight = "400";
+            if (!isNotEmpty && fontWeight < MIN_FONT_WEIGHT && style.fontWeight !== MIN_FONT_WEIGHT.toString()) {
+                parentElement.style.fontWeight = MIN_FONT_WEIGHT.toString();
             }
 
             if (!isNotEmpty && fontWeight <= 600) {
-                if (fontFamily.includes(requiredFonts[foundFonts.length])) {
-                    foundFonts.push(requiredFonts[foundFonts.length]);
+                if (fontFamily.includes(REQUIRED_FONTS[foundFonts.length])) {
+                    foundFonts.push(REQUIRED_FONTS[foundFonts.length]);
                 } else {
                     foundFonts = [];
                 }
 
-                if (foundFonts.length === requiredFonts.length) {
-                    parentElement.style.cssText += newFontFamily;
+                if (foundFonts.length === REQUIRED_FONTS.length) {
+                    parentElement.style.cssText += NEW_FONT_FAMILY;
                     parentElement.classList.add("Replaced-by-ChangeMinimumFontWeight");
                     foundFonts = [];
                 }
@@ -47,20 +47,13 @@
         animationFrameId = requestAnimationFrame(applyStylesToTextNodes);
     };
 
-    animationFrameId = requestAnimationFrame(applyStylesToTextNodes);
-
-    const cancelAnimationFrameIfActive = () => {
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
+    const startAnimation = () => {
+        animationFrameId = requestAnimationFrame(applyStylesToTextNodes);
     };
 
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-            cancelAnimationFrameIfActive();
-        } else {
-            animationFrameId = requestAnimationFrame(applyStylesToTextNodes);
-        }
-    });
+    const stopAnimation = () => {
+        cancelAnimationFrame(animationFrameId);
+    };
+
+    startAnimation();
 })();
